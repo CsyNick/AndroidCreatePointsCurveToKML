@@ -12,14 +12,14 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends Activity {
 
-	// Google Map
 	private GoogleMap googleMap;
 	ArrayList<Scene> sceneList;
 
@@ -27,19 +27,14 @@ public class MainActivity extends Activity {
 	LatLng CityPark = new LatLng(24.205640, 120.596920);// 都會公園
 	LatLng Temple_JENNLANN = new LatLng(24.347720, 120.623530);// 鎮瀾宮
 	LatLng Bridge = new LatLng(24.244820, 120.746490);// '花樑鋼橋
-	private LatLngBounds latLngBounds = new LatLngBounds(new LatLng(24.136570,
-			120.663010), // 美術館綠廊道
-			new LatLng(24.347720, 120.622850));// 文昌祠
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-//		addMarkers();
-//		centerIncidentRouteOnMap(sceneList);
+
 		try {
-		
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -63,7 +58,7 @@ public class MainActivity extends Activity {
 					.title(scene.name));
 
 		}
-	
+
 	}
 
 	public void centerIncidentRouteOnMap(List<Scene> sceneList) {
@@ -78,20 +73,53 @@ public class MainActivity extends Activity {
 			minLon = Math.min(scene.latLng.longitude, minLon);
 		}
 		final LatLngBounds bounds = new LatLngBounds.Builder()
-				.include(new LatLng(maxLat, maxLon)).include(new LatLng(minLat, minLon)).build();
+				.include(new LatLng(maxLat, maxLon))
+				.include(new LatLng(minLat, minLon)).build();
 
-		    
-		 // begin new code:
-		    int width = getResources().getDisplayMetrics().widthPixels;
-		    int height = getResources().getDisplayMetrics().heightPixels;
-		    int padding = (int) (width * 0.12); // offset from edges of the map 12% of screen
+		int width = getResources().getDisplayMetrics().widthPixels;
+		int height = getResources().getDisplayMetrics().heightPixels;
+		int padding = (int) (width * 0.12); // offset from edges of the map 12%
+											// of screen
+		CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width,
+				height, padding);
 
-		    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
-		    // end of new code
-
-		    googleMap.animateCamera(cu);
+		googleMap.animateCamera(cu);
 	}
 
+	private ArrayList<Scene> randomTwoPoint(ArrayList<Scene> scenes){
+		LatLng start =scenes.get(0).latLng;
+		LatLng end =scenes.get(scenes.size()-1).latLng;
+		LatLng newStart = getAdjustedLatLon(start);
+		LatLng newEnd = getAdjustedLatLon(end);
+	
+			googleMap.addMarker(new MarkerOptions().position(newStart)
+					.title("newStart").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+			googleMap.addMarker(new MarkerOptions().position(newEnd)
+					.title("newStart").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+		
+		
+		return scenes;
+		
+	}
+
+	//x and y are offsets in meters
+	private LatLng getAdjustedLatLon(LatLng points) { 
+		double offsetLat = 1000;
+		double offsetLon = 1000;
+		//double offsetAlt = 1;
+
+	double objLat = points.latitude;
+	double objLon = points.longitude;
+	double[] latlon = new double[2];
+	double dLat = offsetLat/6378100.0;
+	double dLon = offsetLon/(6378100.0*Math.cos(Math.PI*objLat/180.));
+	latlon[0] = objLat + dLat * 180./Math.PI;
+	latlon[1] = objLon + dLon * 180./Math.PI;
+	
+	return new LatLng(latlon[0] , latlon[1]);
+	}
 	/**
 	 * function to load map. If map is not created it will create it for you
 	 * */
@@ -99,7 +127,7 @@ public class MainActivity extends Activity {
 		if (googleMap == null) {
 			googleMap = ((MapFragment) getFragmentManager().findFragmentById(
 					R.id.map)).getMap();
-			
+
 			if (googleMap == null) {
 				Toast.makeText(getApplicationContext(),
 						"Sorry! unable to create maps", Toast.LENGTH_SHORT)
@@ -113,8 +141,11 @@ public class MainActivity extends Activity {
 		super.onResume();
 		initilizeMap();
 		AddSceneList();
-	    Log.d("MainActivity", "Size:"+sceneList.size());
-	    addMarkers();
+		Log.d("MainActivity", "Size:" + sceneList.size());
+		addMarkers();
 		centerIncidentRouteOnMap(sceneList);
+		randomTwoPoint(sceneList);
 	}
+	
+	
 }
