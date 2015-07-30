@@ -28,6 +28,8 @@ public class MainActivity extends Activity {
 	LatLng Temple_JENNLANN = new LatLng(24.347720, 120.623530);// 鎮瀾宮
 	LatLng Bridge = new LatLng(24.244820, 120.746490);// '花樑鋼橋
 
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
