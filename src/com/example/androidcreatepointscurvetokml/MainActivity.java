@@ -12,7 +12,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -93,17 +92,154 @@ public class MainActivity extends Activity {
 		LatLng end =scenes.get(scenes.size()-1).latLng;
 		LatLng newStart = getAdjustedLatLon(start);
 		LatLng newEnd = getAdjustedLatLon(end);
-	
+		//LatLng cp =midPoint(start.latitude,start.longitude,end.latitude,end.longitude);
 			googleMap.addMarker(new MarkerOptions().position(newStart)
 					.title("newStart").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
 			googleMap.addMarker(new MarkerOptions().position(newEnd)
 					.title("newStart").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
-		
-		
+			for(Scene scene :randomTwoPoint_v2(sceneList)){
+
+				googleMap.addMarker(new MarkerOptions().position(scene.latLng)
+						.title("newStart").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+			}
+			for(Scene scene :randomTwoPoint_v3(sceneList)){
+
+				googleMap.addMarker(new MarkerOptions().position(scene.latLng)
+						.title("newStart").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+			}
+//			for(Scene scene :randomTwoPoint_v4(sceneList)){
+//
+//				googleMap.addMarker(new MarkerOptions().position(scene.latLng)
+//						.title("newStart").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+//			}
+			
+			
 		return scenes;
 		
+	}
+	private ArrayList<Scene> randomTwoPoint_v2(ArrayList<Scene> scenes){
+		 ArrayList<Scene> slist = new ArrayList<Scene>();
+		LatLng start =scenes.get(0).latLng;
+		LatLng end =scenes.get(scenes.size()-1).latLng;
+		
+			LatLng cp =midPoint(start.latitude,start.longitude,end.latitude,end.longitude);
+			CartesianCoordinates cart1 = new CartesianCoordinates(start);
+			CartesianCoordinates cart2 = new CartesianCoordinates(end);
+			CartesianCoordinates cart3 = new CartesianCoordinates(CityPark.latitude, CityPark.longitude);
+			 
+			for (double t = 0; t <= 1.0; t += 0.1) {
+			    double oneMinusT = (1.0 - t);
+			    double t2 = Math.pow(t, 2);
+			 
+			    double y = oneMinusT * oneMinusT * cart1.y + 2 * t * oneMinusT * cart3.y + t2 * cart2.y;
+			    double x = oneMinusT * oneMinusT * cart1.x + 2 * t * oneMinusT * cart3.x + t2 * cart2.x;
+			    double z = oneMinusT * oneMinusT * cart1.z + 2 * t * oneMinusT * cart3.z + t2 * cart2.z;
+			    LatLng control = CartesianCoordinates.toLatLng(x, y, z);
+			    
+			        Log.v("MainActivity", "t: " + t + control.toString());
+			        slist.add(new Scene("ABC", control));
+			} 
+		
+		
+		return slist;
+		
+	}
+	private ArrayList<Scene> randomTwoPoint_v3(ArrayList<Scene> scenes){
+		 ArrayList<Scene> slist = new ArrayList<Scene>();
+		LatLng start =scenes.get(0).latLng;
+		LatLng end =scenes.get(scenes.size()-1).latLng;
+		
+			LatLng cp =midPoint(start.latitude,start.longitude,end.latitude,end.longitude);
+			CartesianCoordinates cart1 = new CartesianCoordinates(start);
+			CartesianCoordinates cart2 = new CartesianCoordinates(end);
+			CartesianCoordinates cart3 = new CartesianCoordinates(Temple_JENNLANN.latitude, Temple_JENNLANN.longitude);
+			 
+			for (double t = 0; t <= 1.0; t += 0.05) {
+			    double oneMinusT = (1.0 - t);
+			    double t2 = Math.pow(t, 2);
+			
+			    double y = oneMinusT * oneMinusT * cart1.y + 2 * t * oneMinusT * cart3.y + t2 * cart2.y;
+			    double x = oneMinusT * oneMinusT * cart1.x + 2 * t * oneMinusT * cart3.x + t2 * cart2.x;
+			    double z = oneMinusT * oneMinusT * cart1.z + 2 * t * oneMinusT * cart3.z + t2 * cart2.z;
+			    LatLng control = CartesianCoordinates.toLatLng(x, y, z);
+			    
+			        Log.v("MainActivity", "t: " + t + control.toString());
+			        slist.add(new Scene("ABC", control));
+			} 
+		
+		
+		return slist;
+		
+	}
+	private ArrayList<Scene> randomTwoPoint_v4(ArrayList<Scene> scenes){
+		Tuple3d[] sPlist;
+		 ArrayList<Scene> slist = new ArrayList<Scene>();
+		LatLng start =scenes.get(0).latLng;
+		LatLng end =scenes.get(scenes.size()-1).latLng;
+		CartesianCoordinates cart1 = new CartesianCoordinates(start);
+		CartesianCoordinates cart2 = new CartesianCoordinates(end);
+			Tuple3d control1s = new Tuple3d(cart1.x, cart1.y, cart1.z);
+			Tuple3d control2s = new Tuple3d(cart2.x, cart2.y, cart2.z);
+			Tuple3d [] controls = new Tuple3d[2];
+			controls[0] = control1s;
+			controls[1] = control2s;
+ 			LatLng cp =midPoint(start.latitude,start.longitude,end.latitude,end.longitude);
+	     Bezier bezier =new Bezier(scenes);
+	     sPlist =Bezier.getCurvePoints(controls, 0.1);
+	     for(Tuple3d tuple3d :sPlist){
+	    	 LatLng control = CartesianCoordinates.toLatLng(tuple3d.x,tuple3d.y, tuple3d.z);
+	    	 slist.add(new Scene("WOW", control));
+	     }
+	     
+		    
+		return slist;
+		
+	}
+	public  LatLng midPoint(double lat1,double lon1,double lat2,double lon2)
+    {
+		return new LatLng((lat1+lat2)/2, (lon1+lon2)/2);
+
+    }
+	private  LatLng midPoint(LatLng p1, LatLng p2) throws IllegalArgumentException{
+
+	    if(p1 == null || p2 == null)
+	        throw new IllegalArgumentException("two points are needed for calculation");
+
+	    double lat1;
+	    double lon1;
+	    double lat2;
+	    double lon2;
+
+	    //convert to radians
+	    lat1 = Math.toRadians(p1.latitude);
+	    lon1 = Math.toRadians(p1.longitude);
+	    lat2 = Math.toRadians(p2.latitude);
+	    lon2 = Math.toRadians(p2.longitude);
+
+	    double x1 = Math.cos(lat1) * Math.cos(lon1);
+	    double y1 = Math.cos(lat1) * Math.sin(lon1);
+	    double z1 = Math.sin(lat1);
+
+	    double x2 = Math.cos(lat2) * Math.cos(lon2);
+	    double y2 = Math.cos(lat2) * Math.sin(lon2);
+	    double z2 = Math.sin(lat2);
+
+	    double x = (x1 + x2)/2;
+	    double y = (y1 + y2)/2;
+	    double z = (z1 + z2)/2;
+
+	    double lon = Math.atan2(y, x);
+	    double hyp = Math.sqrt(x*x + y*y);
+
+	    // HACK: 0.9 and 1.1 was found by trial and error; this is probably *not* the right place to apply mid point shifting
+	    double lat = Math.atan2(.9*z, hyp); 
+	    if(lat>0) lat = Math.atan2(1.1*z, hyp);
+
+	        Log.v("MainActivity", Math.toDegrees(lat) + " " + Math.toDegrees(lon));
+
+	    return new LatLng(Math.toDegrees(lat),  Math.toDegrees(lon));
 	}
 
 	//x and y are offsets in meters
@@ -147,7 +283,31 @@ public class MainActivity extends Activity {
 		addMarkers();
 		centerIncidentRouteOnMap(sceneList);
 		randomTwoPoint(sceneList);
+		
 	}
 	
 	
 }
+class CartesianCoordinates { 
+private static final int R = 6378137; // approximate radius of earth
+double x;
+double y;
+double z;
+ 
+public CartesianCoordinates(LatLng p) {
+    this(p.latitude, p.longitude);
+} 
+ 
+public CartesianCoordinates(double lat, double lon) {
+    double _lat = Math.toRadians(lat);
+    double _lon = Math.toRadians(lon);
+ 
+    x = R * Math.cos(_lat) * Math.cos(_lon);
+    y = R * Math.cos(_lat) * Math.sin(_lon);
+    z = R * Math.sin(_lat);
+} 
+ 
+public static LatLng toLatLng(double x, double y, double z){
+        return new LatLng(Math.toDegrees(Math.asin(z / R)), Math.toDegrees(Math.atan2(y, x)));
+    } 
+} 
