@@ -104,6 +104,7 @@ int drawable powered_by_google_light 0x7f020025
 int id adjust_height 0x7f070001
 int id adjust_width 0x7f070002
 int id book_now 0x7f070012
+int id btn_gotoGoogleEarth 0x7f07001b
 int id buyButton 0x7f07000e
 int id buy_now 0x7f070013
 int id buy_with_google 0x7f070014

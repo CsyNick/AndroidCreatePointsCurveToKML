@@ -474,6 +474,7 @@ containing a value of this type.
         public static final int adjust_height=0x7f070001;
         public static final int adjust_width=0x7f070002;
         public static final int book_now=0x7f070012;
+        public static final int btn_gotoGoogleEarth=0x7f07001b;
         public static final int buyButton=0x7f07000e;
         public static final int buy_now=0x7f070013;
         public static final int buy_with_google=0x7f070014;
